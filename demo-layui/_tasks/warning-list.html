@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统报警管理平台</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../js/jquery-3.3.1.min.js"></script>
+</head>
+<body class="layui-layout-body" style="width:100%;min-width:1280px;">
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <div class="layui-input-inline">
+            <select name="alarmproj" id="demoReload1" lay-search="">
+                <option value="">所属产品--请选择</option>
+
+            </select>
+        </div>
+        <div class="layui-input-inline">
+            <select name="followstate" id="demoReload2">
+                <option value="">跟进状态--请选择</option>
+            </select>
+        </div>
+        <div class="layui-input-inline">
+            <input type="text" name="alarminfo" id="demoReload3" placeholder="报警详细" class="layui-input">
+        </div>
+        <div class="demoTable">
+            <div class="layui-input-inline">
+                <input type="text" name="alarmtime1" id="date" placeholder="报警时间--请选择" autocomplete="off"
+                       class="layui-input">
+            </div>
+
+            <div class="layui-input-inline">
+                <input type="text" name="alarmtime2" id="date1" placeholder="报警时间--请选择" autocomplete="off"
+                       class="layui-input">
+            </div>
+            <button class="layui-btn layui-btn-normal demoTable1" lay-submit="" lay-filter="formDemo" data-type="reload"
+                    id="data_search">
+                <i class="layui-icon"></i> 搜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;索
+            </button>
+
+            <div class="layui-btn layui-btn-normal" id="button_add" type="button">
+                <i class="layui-icon"></i> 新增报警
+            </div>
+        </div>
+    </div>
+</form>
+<div class="demoTable ">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>报警列表</legend>
+    </fieldset>
+    <table class="layui-hide" id="warning_data" lay-filter="demo"></table>
+    <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">详情</a>
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+</div>
+
+<!--分页-->
+<!--<div id="demo0"></div>-->
+
+<script src="../layui/layui.js"></script>
+<script>
+
+    var main_host = "http://192.168.0.121:8001";
+    //Demo
+    layui.use(['form', 'layedit', 'laydate', 'laypage', 'layer', 'table'], function () {
+        var form = layui.form
+            , $ = layui.jquery
+            , layer = layui.layer //弹层
+            , laypage = layui.laypage //分页
+            , table = layui.table  //表格
+            , layedit = layui.layedit //编辑
+            , laydate = layui.laydate; //日期
+
+        var token = localStorage.getItem("token");
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        //方法级渲染
+        table.render({
+            elem: '#warning_data'
+            , url: main_host + '/v1/alarm/search/?token=' + token    //数据接口
+            , page: true //开启分页
+            , cols: [[  //表头
+                // {field:'id', title: 'ID'}
+                {field: 'alarmtime', title: '报警日期', sort: true, fixed: 'left'}
+                , {field: 'alarmtype', title: '报警类型',}
+                , {field: 'alarmproj', title: '所属项目',}
+                , {field: 'alarminfo', title: '报警详细'}
+                , {field: 'followstate', title: '跟进状态'}
+                , {field: 'follower', title: '跟进人'}
+                , {field: 'operation', fixed: 'right', title: '操作', align: 'center', toolbar: '#barDemo'}
+            ]]
+            , id: 'testReload'
+            , done: function (res, page, count) {
+                $("[data-field='alarmtype']").children().each(function () {
+                    if ($(this).text() == "0") {
+                        $(this).text("状态检测告警")
+                    } else if ($(this).text() == "1") {
+                        $(this).text("异常告警")
+                    } else if ($(this).text() == "2") {
+                        $(this).text("应用告警")
+                    }
+                });
+                $("[data-field='alarmproj']").children().each(function () {
+                    if ($(this).text() == "0") {
+                        $(this).text("学习中心")
+                    } else if ($(this).text() == "1") {
+                        $(this).text(" 服务中心")
+                    }
+                })
+                $("[data-field='followstate']").children().each(function () {
+                    if ($(this).text() == "0") {
+                        $(this).text("未跟进")
+                    } else if ($(this).text() == "1") {
+                        $(this).text(" 跟进中")
+                    } else if ($(this).text() == "2") {
+                        $(this).text("已跟进")
+                    }
+                })
+            }
+        });
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var demoReload1 = $('#demoReload1');
+                var demoReload2 = $('#demoReload2');
+                var demoReload3 = $('#demoReload3');
+                var demoReload4 = $('#date');
+                var demoReload5 = $('#date1');
+                var alarmtime1 = demoReload4.val();
+                var alarmtime2 = demoReload5.val();
+
+                if (alarmtime1 == "" || alarmtime2 == "") {
+                    var alarmtime = ""
+                } else {
+                    var alarmtime = alarmtime1 + ":" + alarmtime2
+                }
+
+
+                //执行重载
+                table.reload('testReload', {
+                    // page: {
+                    //     curr: 1 //重新从第 1 页开始
+                    // },
+                    where: {
+                        alarmproj: demoReload1.val()
+                        , followstate: demoReload2.val()
+                        , alarminfo: demoReload3.val()
+                        , alarmtime: alarmtime
+
+                    }
+                });
+            }
+        };
+
+        $('#data_search').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+
+        //根据条件筛选
+        $.ajax({ //异步请求返回给后台
+            url: main_host + '/v1/ddic/query/',
+            type: 'get',
+            dataType: 'json',
+            async: true,
+            data: {"token": token},
+            success: function (data) {
+                var content_data = data.data;
+                for (var i = 0; i < content_data.length; i++) {
+
+                    if (content_data[i]["value"] == "学习中心") {
+                        $("#demoReload1").append("<option value=" + content_data[i].code + ">" + "学习中心" + "</option>");
+                    } else if (content_data[i]["value"] == "服务中心") {
+                        $("#demoReload1").append("<option value=" + content_data[i].code + ">" + "服务中心" + "</option>");
+                    }
+                    if (content_data[i]["value"] == "未跟进") {
+                        $("#demoReload2").append("<option value=" + content_data[i].code + ">" + "未跟进" + "</option>");
+                    } else if (content_data[i]["value"] == "跟进中") {
+                        $("#demoReload2").append("<option value=" + content_data[i].code + ">" + "跟进中" + "</option>");
+                    } else if (content_data[i]["value"] == "已跟进") {
+                        $("#demoReload2").append("<option value=" + content_data[i].code + ">" + "已跟进" + "</option>");
+                    }
+                }
+                form.render();
+
+            }
+        });
+
+        table.on('tool(demo)', function (obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data //获得当前行数据
+                , layEvent = obj.event; //获得 lay-event 对应的值
+            if (layEvent === 'detail') {
+                layer.msg('ID：' + data.id + ' 的详情');
+                $(location).attr('href', './warning-check.html?id=' + data.id)
+
+            } else if (layEvent === 'del') {
+                layer.confirm('是否确认删除', function (index) {
+                    obj.del(); //删除对应行（tr）的DOM结构
+                    layer.close(index);
+                    //向服务端发送删除指令
+                    $.ajax({
+                        url: main_host + "/v1/alarm/delete/" + data.id, //删除的接口
+                        data: {'id': data.id},
+                        type: "post",
+                        dataType: 'json',
+                        async: true,
+                        success: function (data) {
+                            if (data.code == 200) {
+                                location.reload();
+                            } else {
+                                layer.msg("删除失败");
+                            }
+                        }
+                    })
+                });
+            } else if (layEvent === 'edit') {  // 编辑
+                layer.alert('编辑行：<br>' + JSON.stringify(data));
+                $(location).attr('href', './warning-edit.html?id=' + data.id)
+            }
+        });
+
+        //监听提交
+        form.on('submit(formDemo)', function (data) {
+            var data_dict = data.field;
+            // console.log(data_dict);
+            // console.log(data_dict["alarmproj"]);
+
+            //{"alarmproj":"0","followstate":"0","alarminfo":"vvv","alarmtime1":"2018-07-10","alarmtime2":"2018-07-10"}
+            // 所属项目 0 学习中心 1 服务中心
+            //跟进状态 0 未跟进 1 跟进中 2 已跟进
+
+
+            // // 搜索
+            // var alarmproj = data_dict["alarmproj"];
+            // var followstate = data_dict["followstate"];
+            // var alarminfo = data_dict["alarminfo"];
+            // var alarmtime = "";
+            // if (data.field.alarmtime1 == "" || data.field.alarmtime2 != "") {
+            //     alarmtime = data.field.alarmtime2
+            // } else if (data.field.alarmtime1 != "" || data.field.alarmtime2 == "") {
+            //     alarmtime = data.field.alarmtime1
+            // } else {
+            //     alarmtime = data.field.alarmtime1 + "&" + data.field.alarmtime2;
+            // }
+
+
+            // $.ajax({
+            //     url: main_host + '/v1/alarm/search/',
+            //     dataType: "json",
+            //     type: "post",
+            //     async: true,
+            //     data: {
+            //         "alarmproj": alarmproj,
+            //         "followstate": followstate,
+            //         "alarminfo": alarminfo,
+            //         "alarmtime": alarmtime
+            //     },
+            //     success: function (data) {
+            //         var data_li = data.data;
+            //         var keys = {};
+            //         if(data_li== null){
+            //             var data_li_length = 0
+            //         } else{
+            //             var data_li_length = data_li.length
+            //         }
+            //         for (var i = 0; i < data_li_length; i++) {
+            //             keys = data_li[i];
+            //
+            //             table.render({
+            //                 elem: '#warning_data'
+            //                 , url: ''
+            //                 , page: true //开启分页
+            //                 , cols: [[  //表头
+            //                     // {field:'id', title: 'ID'}
+            //                     {
+            //                         field: 'alarmtime', title: '报警日期', sort: true, fixed: 'left', templet: function () {
+            //                             return keys.alarmtime
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'alarmtype', title: '报警类型', templet: function () {
+            //                             return keys.alarmtype
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'alarmproj', title: '所属项目', templet: function () {
+            //                             return keys.alarmproj
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'alarminfo', title: '报警详细', templet: function () {
+            //                             return keys.alarminfo
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'followstate', title: '跟进状态', templet: function () {
+            //                             return keys.followstate
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'follower', title: '跟进人', templet: function () {
+            //                             return keys.follower
+            //                         }
+            //                     }
+            //                     , {
+            //                         field: 'operation',
+            //                         fixed: 'right',
+            //                         title: '操作',
+            //                         align: 'center',
+            //                         toolbar: '#barDemo',
+            //                         templet: function () {
+            //                             return keys.operation
+            //                         }
+            //                     }
+            //                 ]]
+            //             })
+            //         }
+            //     }
+            // });
+            return false;
+        });
+    });
+
+    $("#button_add").on('click', function () {
+        $(location).attr('href', './warning-add.html')
+    })
+
+</script>
+</body>
+</html>

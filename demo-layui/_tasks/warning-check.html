@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>查看报警详情</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <script src="../js/jquery-3.3.1.min.js"></script>
+</head>
+<body style="width:100%;min-width:1280px;">
+<table class="layui-table" lay-skin="nob" frame="box">
+    <colgroup>
+        <col width="150">
+        <col width="150">
+        <col width="150">
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th colspan="3" style="font-weight: bold">报警信息记录</th>
+    </tr>
+    </thead>
+    <tbody id="data_scan">
+    </tbody>
+</table>
+<script>
+    var main_host = "http://192.168.0.121:8001";
+    var token = localStorage.getItem("token");
+    $(function () {
+        $.ajax({
+            url: main_host + '/v1/alarm/getall/',
+            dataType: 'json',
+            type: 'get',
+            async: true,
+            data: {"token":token},
+            success: function (data) {
+                // console.log(data)
+                var content_data = data.data;
+                // console.log(content_data)
+                var res_code = data.code;
+                var msg = data.msg;
+                if (res_code === 0 && msg === "success") {
+                    var html = "";
+                    for (var i = 0; i < content_data.length; i++) {
+                        console.log(content_data);
+                        var alarmproj = "";
+                        if (content_data[i].alarmproj == "0") {
+                            alarmproj = "学习中心"
+                        } else if (content_data[i].alarmproj == "1") {
+                            alarmproj = "服务中心"
+                        } else (alarmproj = "");
+                        var followstate = "";
+                        if (content_data[i].followstate == "0") {
+                            followstate = "未跟进"
+                        } else if (content_data[i].followstate == "1") {
+                            followstate = "跟进中"
+                        } else if (content_data[i].followstate == "2") {
+                            followstate = "已跟进"
+                        } else (alarmproj = "");
+                        var alarmhost = content_data[i].alarmhost;
+                        var alarminfo = content_data[i].alarminfo;
+                        var solutioner = content_data[i].solutioner;
+                        var solutiontime = content_data[i].solutiontime;
+                        var follower = content_data[i].follower;
+                        var solution = content_data[i].solution;
+                        html += "<tr>\n" +
+                            "<td colspan=\"3\" style=\"font-weight: bold\">报警信息</td></tr>" +
+                            " <tr><td>所属项目:" + alarmproj + "</td><td colspan=\"2\">所属主机:" + alarmhost + "</td></tr>" +
+                            "<tr><td colspan=\"3\">报警描述:" + alarminfo + "</tr></td>" +
+                            "<td colspan=\"3\"><hr></td>" +
+                            "<tr><td colspan=\"3\" style=\"font-weight: bold\">跟踪信息</tr></td>" +
+                            "<tr><td class=\"td1\">解决人:" + solutioner + "</td><td colspan=\"2\" class=\"td1\">解决时间:" + solutiontime + "</td></tr>" +
+                            "<tr><td class=\"td1\">跟进状态:" + followstate + "</td><td colspan=\"2\" class=\"td1\">跟进人:" + follower + "</td></tr>" +
+                            "<tr><td colspan=\"3\" class=\"td1\">解决方案:" + solution + "</tr></td>" +
+                            "<td colspan=\"3\"><hr></td>"
+                        ;
+                    }
+                    $("#data_scan").html(html);
+                }
+            }
+        });
+
+        // 截取url参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+
+        // 根据截取的id参数筛选对应信息
+        if (getUrlParam("id") != null) {
+            $.ajax({
+                url: main_host + '/v1/alarm/getall/',
+                dataType: 'json',
+                type: 'get',
+                async: true,
+                data:{"token":token},
+                success: function (data) {
+                    var content_data = data.data;
+                    // console.log(content_data)
+                    var res_code = data.code;
+                    var msg = data.msg;
+                    if (res_code === 0 && msg === "success") {
+                        var html = "";
+                        for (var i = 0; i < content_data.length; i++) {
+                            if (content_data[i].id == getUrlParam("id")) {
+
+                                var alarmproj = "";
+                                if (content_data[i].alarmproj == "0") {
+                                    alarmproj = "学习中心"
+                                } else if (content_data[i].alarmproj == "1") {
+                                    alarmproj = "服务中心"
+                                } else (alarmproj = "");
+                                var followstate = "";
+                                if (content_data[i].followstate == "0") {
+                                    followstate = "未跟进"
+                                } else if (content_data[i].followstate == "1") {
+                                    followstate = "跟进中"
+                                } else if (content_data[i].followstate == "2") {
+                                    followstate = "已跟进"
+                                } else (alarmproj = "");
+                                var alarmhost = content_data[i].alarmhost;
+                                var alarminfo = content_data[i].alarminfo;
+                                var solutioner = content_data[i].solutioner;
+                                var solutiontime = content_data[i].solutiontime;
+                                var follower = content_data[i].follower;
+                                var solution = content_data[i].solution;
+                                html += "<tr>\n" +
+                                    "<td colspan=\"3\" style=\"font-weight: bold\">报警信息</td></tr>" +
+                                    " <tr><td>所属项目:" + alarmproj + "</td><td colspan=\"2\">所属主机:" + alarmhost + "</td></tr>" +
+                                    "<tr><td colspan=\"3\">报警描述:" + alarminfo + "</tr></td>" +
+                                    "<td colspan=\"3\"><hr></td>" +
+                                    "<tr><td colspan=\"3\" style=\"font-weight: bold\">跟踪信息</tr></td>" +
+                                    "<tr><td class=\"td1\">解决人:" + solutioner + "</td><td colspan=\"2\" class=\"td1\">解决时间:" + solutiontime + "</td></tr>" +
+                                    "<tr><td class=\"td1\">跟进状态:" + followstate + "</td><td colspan=\"2\" class=\"td1\">跟进人:" + follower + "</td></tr>" +
+                                    "<tr><td colspan=\"3\" class=\"td1\">解决方案:" + solution + "</tr></td>" +
+                                    "<td colspan=\"3\"><hr></td>"
+                                ;
+                            }
+                            $("#data_scan").html(html);
+
+                        }
+
+                    }
+                }
+            })
+        }
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>编辑报警信息</title>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>编辑报警记录</legend>
+</fieldset>
+
+<form class="layui-form" method="post" action="" id="myform">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">报警环境</label>
+        <div class="layui-input-inline">
+            <select name="alarmenv" lay-verify="required" lay-filter="level" id="select1">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">报警类型</label>
+        <div class="layui-input-inline">
+            <select name="alarmtype" lay-verify="required" lay-filter="level" id="select2">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">报警时间</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" name="alarmtime" id="date" lay-verify="required"
+                   placeholder="YYYY-MM-DD HH:MM:SS">
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">报警信息</label>
+        <div class="layui-input-block" id="alarminfo">
+            <textarea placeholder="请输入报警详细信息" name="alarminfo" class="layui-textarea"
+                      lay-verify="required"></textarea>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">报警主机</label>
+        <div class="layui-input-inline" id="alarmhost">
+            <input type="text" name="alarmhost" lay-verify="required" autocomplete="off" placeholder="请输入主机"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属项目</label>
+        <div class="layui-input-inline">
+            <select name="alarmproj" lay-verify="required" lay-filter="level" id="select3">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">接触时间</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" name="touchtime" id="date1" lay-verify="required"
+                   placeholder="YYYY-MM-DD HH:MM:SS">
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">解决方案</label>
+        <div class="layui-input-block" id="solution">
+            <textarea placeholder="请输入解决方案" name="solution" class="layui-textarea" lay-verify="required"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">解决人</label>
+        <div class="layui-input-inline" id="solutioner">
+            <input type="text" name="solutioner" lay-verify="required" autocomplete="off" placeholder="请输入解决人"
+                   class="layui-input">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">解决时间</label>
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" name="solutiontime" id="date2" lay-verify="required"
+                   placeholder="YYYY-MM-DD HH:MM:SS">
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">跟进状态</label>
+        <div class="layui-input-inline">
+            <select name="followstate" lay-verify="required" lay-filter="level" id="select4">
+                <option value="">状态</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">跟进人</label>
+        <div class="layui-input-inline" id="follower">
+            <input type="text" name="follower" lay-verify="required" autocomplete="off" placeholder="请输入跟进人"
+                   class="layui-input">
+        </div>
+    </div>
+
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">保存</button>
+        </div>
+    </div>
+</form>
+<script src="../layui/layui.js"></script>
+<script>
+    var main_host = "http://192.168.0.121:8001";
+    layui.use(['form', 'layedit', 'laydate'], function () {
+        var form = layui.form
+            , $ = layui.jquery
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate;
+
+
+        //日期时间选择器
+        laydate.render({
+            elem: '#date'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm:ss'
+            , istime: true,
+        });
+
+        laydate.render({
+            elem: '#date1'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm:ss'
+            , istime: true,
+        });
+        laydate.render({
+            elem: '#date2'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm:ss'
+            , istime: true,
+        });
+        // $("#select1").append("<option value='alarmenv'>text</option>")
+        // $("#select2").append("<option value='alarmenv'>text1</option>")
+        // $("#select3").append("<option value='alarmenv'>text2</option>")
+        // form.render();
+        var token = localStorage.getItem("token");
+        // 动态获取表单信息
+        $.ajax({ //异步请求返回给后台
+            url: main_host + '/v1/ddic/query/',//
+            type: 'get',
+            dataType: 'json',
+            async: true,
+            data:{"token":token},
+            success: function (data) {
+                //这里获取到数据执行显示
+                var content_data = data.data;
+                if (data.code == 200) {
+                    // console.log(content_data);
+                    for (var i = 0; i < content_data.length; i++) {
+                        if (content_data[i].description == "报警环境") {
+                            $("#select1").append("<option value=" + content_data[i].code + ">" + content_data[i].value + "</option>")
+                        } else if (content_data[i].description == "报警类型") {
+                            $("#select2").append("<option value=" + content_data[i].code + ">" + content_data[i].value + "</option>")
+                        } else if (content_data[i].description == "所属项目") {
+                            $("#select3").append("<option value=" + content_data[i].code + ">" + content_data[i].value + "</option>")
+                        } else if (content_data[i].description == "跟进状态") {
+                            $("#select4").append("<option value=" + content_data[i].code + ">" + content_data[i].value + "</option>")
+                        }
+                    }
+                    form.render(); // 重新刷新表单
+                }
+            }
+        });
+
+        // 截取url参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+
+        //监听提交
+        form.on('submit(demo1)', function (data) {
+            // layer.alert(JSON.stringify(data.field), {
+            //     title: '最终的提交信息'
+            // });
+            data.field["id"] = getUrlParam("id");
+            data.field["token"] = token;
+            $.post(main_host + "/v1/alarm/edit/" + getUrlParam("id") + "/",  data.field, function (data, status) {
+                console.log(data, status);
+                if (status == "success" || status == "200") {
+                    alert("修改成功！！")
+                }
+            });
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+
+        // 根据截取的id参数筛选对应信息
+        if (getUrlParam("id") != null) {
+            var u_id = getUrlParam("id")
+            $.ajax({
+                url: main_host + "/v1/alarm/" + u_id + "/", //查询数据的接口
+                data: {'id': u_id,'token':token},
+                type: "get",
+                dataType: 'json',
+                async: true,
+                success: function (data) {
+                    if (data.code == 200) {
+                        var content_data1 = data.data;
+                        console.log(content_data1);
+                        if (content_data1.alarmenv == "0") {
+                            $("#select1 option[value='0']").remove();
+                            $("#select1").append("<option value='0' selected=\"selected\"" + ">" + "online" + "</option>");
+                        }
+                        else if (content_data1.alarmenv == "1") {
+                            $("#select1 option[value='1']").remove();
+                            $("#select1").append("<option value='1' selected=\"selected\"" + ">" + "dev" + "</option>");
+                        }
+
+                        if (content_data1.alarmtype == "0") {
+                            $("#select2 option[value='0']").remove();
+                            $("#select2").append("<option value='0' selected=\"selected\"" + ">" + "状态检测告警" + "</option>");
+                        }
+                        else if (content_data1.alarmtype == "1") {
+                            $("#select2 option[value='1']").remove();
+                            $("#select2").append("<option value='1' selected=\"selected\"" + ">" + " 异常告警" + "</option>");
+                        }
+                        else if (content_data1.alarmtype == "2") {
+                            $("#select2 option[value='2']").remove();
+                            $("#select2").append("<option value='2' selected=\"selected\"" + ">" + " 应用告警" + "</option>");
+                        }
+
+                        if (content_data1.alarmproj == "0") {
+                            $("#select3 option[value='0']").remove();
+                            $("#select3").append("<option value='0' selected=\"selected\"" + ">" + "学习中心" + "</option>");
+                        }
+                        else if (content_data1.alarmproj == "1") {
+                            $("#select3 option[value='1']").remove();
+                            $("#select3").append("<option value='1' selected=\"selected\"" + ">" + "服务中心" + "</option>");
+                        }
+
+                        if (content_data1.followstate == "0") {
+                            $("#select4 option[value='0']").remove();
+                            $("#select4").append("<option value='0' selected=\"selected\"" + ">" + "未跟进" + "</option>");
+                        }
+                        else if (content_data1.followstate == "1") {
+                            $("#select4 option[value='1']").remove();
+                            $("#select4").append("<option value='1' selected=\"selected\"" + ">" + "跟进中" + "</option>");
+                        }
+                        else if (content_data1.followstate == "2") {
+                            $("#select4 option[value='2']").remove();
+                            $("#select4").append("<option value='2' selected=\"selected\"" + ">" + "已跟进" + "</option>");
+                        }
+
+                        $("#alarminfo").empty();
+                        $("#alarminfo").append("<textarea placeholder=\"请输入报警详细信息\" name=\"alarminfo\" class=\"layui-textarea\"\n" +
+                            "lay-verify=\"required\">" + content_data1.alarminfo + "</textarea>");
+
+                        $("#alarmhost").empty()
+                        $("#alarmhost").append("<input type=\"text\" name=\"alarmhost\" lay-verify=\"required\" autocomplete=\"off\" placeholder=\"请输入主机\"\n" +
+                            "                    class=\"layui-input\" value=" + content_data1.alarminfo + ">");
+
+                        $("#solution").empty()
+                        $("#solution").append("<textarea placeholder=\"请输入解决方案\" name=\"solution\" class=\"layui-textarea\" lay-verify=\"required\">" + content_data1.solution + "</textarea>");
+
+                        $("#solutioner").empty()
+                        $("#solutioner").append("<input type=\"text\" name=\"solutioner\" lay-verify=\"required\" autocomplete=\"off\" placeholder=\"请输入解决人\"\n" +
+                            "                   class=\"layui-input\" value=" + content_data1.solutioner + ">");
+                        $("#follower").empty()
+                        $("#follower").append("<input type=\"text\" name=\"follower\" lay-verify=\"required\" autocomplete=\"off\" placeholder=\"请输入跟进人\"\n" +
+                            "                    class=\"layui-input\" value=" + content_data1.follower + ">");
+
+                        // $("#myform").attr('action', main_host + "/v1/alarm/edit/" + content_data1.id + "/");
+                        form.render(); // 重新刷新表单
+                    }
+                }
+            })
+        }
+
+    })
+
+
+</script>
+</body>
+</html>
